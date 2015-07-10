@@ -38,7 +38,8 @@ from .utils import CollectionDebugWrapper
 class DatabaseFeatures(NonrelDatabaseFeatures):
     supports_microsecond_precision = False
     supports_long_model_names = False
-    distinguishes_insert_from_update = True
+
+    can_rollback_ddl = True
 
 
 class DatabaseOperations(NonrelDatabaseOperations):
@@ -61,6 +62,9 @@ class DatabaseOperations(NonrelDatabaseOperations):
         drop all `tables`. No SQL in MongoDB, so just clear all tables
         here and return an empty list.
         """
+
+
+
         for table in tables:
             if table.startswith('system.'):
                 # Do not try to drop system collections.
@@ -247,11 +251,6 @@ class DatabaseWrapper(NonrelDatabaseWrapper):
                 warnings.warn("slave_okay has been deprecated. "
                               "Please use read_preference instead.")
 
-        if replicaset:
-            connection_class = MongoReplicaSetClient
-        else:
-            connection_class = MongoClient
-
         conn_options = dict(
             host=host,
             port=int(port),
@@ -259,6 +258,11 @@ class DatabaseWrapper(NonrelDatabaseWrapper):
             tz_aware=False
         )
         conn_options.update(options)
+
+        if replicaset:
+            connection_class = MongoReplicaSetClient
+        else:
+            connection_class = MongoClient
 
         try:
             self.connection = connection_class(**conn_options)
