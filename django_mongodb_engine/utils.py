@@ -2,10 +2,11 @@ import re
 import time
 
 from django.conf import settings
-from django.db.backends.util import logger
 
 from pymongo import ASCENDING
 from pymongo.cursor import Cursor
+
+from django.db.backends.utils import logger
 
 
 def first(test_func, iterable):
